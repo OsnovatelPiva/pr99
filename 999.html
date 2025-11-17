@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slot Game</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #141823;
+            text-align: center;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: auto;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        .attempts {
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            background: #00ff44;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 20px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #fff;
+            
+            transition: background-color 0.3s ease;
+        }
+        
+        .btn.play-again {
+            background: #ffc107;
+        }
+
+        .slots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            background: #373e51;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .slot {
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 60px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1;
+        }
+
+        @media (max-width: 480px) {
+            .slot { 
+                height: 60px; 
+                font-size: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 id="user-name">User</h1>
+    <div class="attempts" id="attempts">Спроба 1 з 3</div>
+
+    <button class="btn" id="action-btn" onclick="generate()">Generate</button>
+
+    <div class="slots" id="slot-field">
+    </div>
+</div>
+
+<script>
+    const symbols = [
+        "7️⃣", "❌", "🍓", "🍋", "🍉", "🍒", "💵", "🍊", "🍎"
+    ];
+
+    let attempts = 0;
+    let win = false;
+
+    let userName = "";
+    while (!userName) {
+        userName = prompt("Введіть ім’я:");
+        if (!userName) alert("Поле не може бути пустим!");
+    }
+
+    document.getElementById("user-name").innerText = userName;
+
+    const actionBtn = document.getElementById("action-btn");
+    const attemptsEl = document.getElementById("attempts");
+    const slotField = document.getElementById("slot-field");
+
+
+    function generateColumn() {
+        let shuffled = [...symbols].sort(() => Math.random() - 0.5);
+        return shuffled.slice(0, 3);
+    }
+
+    function generate() {
+        if (attempts >= 3) return;
+
+        attempts++;
+        attemptsEl.textContent = `Спроба ${attempts} з 3`;
+
+        let col1 = generateColumn();
+        let col2 = generateColumn();
+        let col3 = generateColumn();
+
+        let grid = [
+            [col1[0], col2[0], col3[0]],
+            [col1[1], col2[1], col3[1]],
+            [col1[2], col2[2], col3[2]]
+        ];
+
+        slotField.innerHTML = "";
+
+        for (let row of grid) {
+            for (let symbol of row) {
+                slotField.innerHTML += `<div class="slot">${symbol}</div>`;
+            }
+        }
+
+        for (let row of grid) {
+            if (row[0] === row[1] && row[1] === row[2]) {
+                win = true;
+            }
+        }
+
+        if (win) {
+            alert("Ви перемогли!");
+            endGame();
+            attempts = 3; 
+        } else if (attempts === 3) {
+            alert("Ви програли 🫵🤣 :(");
+            endGame();
+        }
+    }
+
+    function endGame() {
+        actionBtn.textContent = 'Грати знову';
+        actionBtn.onclick = resetGame;
+        actionBtn.classList.add('play-again');
+    }
+
+    function resetGame() {
+        attempts = 0;
+        win = false;
+
+        actionBtn.textContent = 'Generate';
+        actionBtn.onclick = generate;
+        actionBtn.classList.remove('play-again');
+        
+        slotField.innerHTML = "";
+        
+        attemptsEl.textContent = `Спроба 0 з 3`;
+        
+        generate();
+    }
+
+    generate();
+</script>
+
+</body>
+</html>
